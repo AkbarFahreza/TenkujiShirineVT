@@ -2,7 +2,9 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import DropDown from "./components/home/DropDown";
-
+import UpComingStream from "./components/UpcomingStream";
+import DummyUpcoming from "./components/DummyUpcoming";
+import Home from "./components/UpcomingStream";
 function Page() {
   const [selectedOption, setSelectedOption] = useState({
     value: "nowStream",
@@ -10,8 +12,8 @@ function Page() {
   });
 
   const options = [
-    { value: "nowStream", label: "Now Streaming" },
     { value: "upComingStream", label: "Scheduled" },
+    { value: "nowStream", label: "Now Streaming" },
   ];
 
   const handleSelectChange = (value) => {
@@ -20,7 +22,7 @@ function Page() {
 
   return (
     <div>
-      <div className="w-full lg:min-h-screen relative min-h-[100px]">
+      <div className="w-full xl:min-h-screen relative min-h-[100px] bg-secondary">
         <Image
           width={500}
           height={231}
@@ -56,11 +58,9 @@ function Page() {
         </div>
         <div>
           {selectedOption.value === "nowStream" && (
-            <p className="mt-2 text-green-600">Hello Selection 1</p>
-          )}
-          {selectedOption.value === "upComingStream" && (
             <p className="mt-2 text-blue-600">Hello Selection 2</p>
           )}
+          {selectedOption.value === "upComingStream" && <Home />}
         </div>
       </div>
     </div>

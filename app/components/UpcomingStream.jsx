@@ -1,12 +1,24 @@
 "use client";
 import React, { useEffect, useState } from "react";
+// ... (previous imports)
 
 const YouTubeLiveStreams = ({ apiKey, channelIds }) => {
   const [upcomingStreams, setUpcomingStreams] = useState([]);
+  const cacheKey = "youtubeLiveStreams";
 
   useEffect(() => {
     const fetchUpcomingStreams = async () => {
       try {
+        const cachedData = localStorage.getItem(cacheKey);
+        if (cachedData) {
+          const { data, timestamp } = JSON.parse(cachedData);
+          // Check if the cached data is less than 1 hour old
+          if (Date.now() - timestamp < 3600000) {
+            setUpcomingStreams(data);
+            return;
+          }
+        }
+
         const promises = channelIds.map(async (channelId) => {
           const response = await fetch(
             `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&type=video&eventType=upcoming&key=${apiKey}`
@@ -18,24 +30,62 @@ const YouTubeLiveStreams = ({ apiKey, channelIds }) => {
 
           const data = await response.json();
 
-          const streams = data.items.map((item) => ({
-            title: item.snippet.title,
-            scheduledTime: item.snippet.publishedAt,
-            videoId: item.id.videoId,
-          }));
+          const streams = await Promise.all(
+            data.items.map(async (item) => {
+              const videoId = item.id.videoId;
+              const videoDetailsResponse = await fetch(
+                `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${apiKey}`
+              );
 
-          return { channelId, streams };
+              if (!videoDetailsResponse.ok) {
+                throw new Error(
+                  `Error fetching video details for videoId ${videoId}`
+                );
+              }
+
+              const videoDetails = await videoDetailsResponse.json();
+              const thumbnail =
+                videoDetails.items[0]?.snippet?.thumbnails?.high?.url ||
+                videoDetails.items[0]?.snippet?.thumbnails?.default?.url ||
+                "";
+
+              // Fetch channel information
+              const channelResponse = await fetch(
+                `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`
+              );
+
+              const channelData = await channelResponse.json();
+              const channelName =
+                channelData?.items[0]?.snippet?.title || "Unknown Channel";
+              const channelAvatar =
+                channelData?.items[0]?.snippet?.thumbnails?.default?.url || "";
+              console.log(channelData);
+              return {
+                title: item.snippet.title,
+                scheduledTime: item.snippet.publishedAt,
+                videoId: videoId,
+                channelId: item.snippet.channelId,
+                thumbnail: thumbnail,
+                channelName: channelName,
+                channelAvatar: channelAvatar,
+              };
+            })
+          );
+
+          return streams;
         });
 
-        const streamsForAllChannels = await Promise.all(promises);
+        const allStreams = await Promise.all(promises);
+        const flattenedStreams = allStreams.flat();
 
-        // Organize the streams into an object with channel IDs as keys
-        const streamsByChannel = {};
-        streamsForAllChannels.forEach(({ channelId, streams }) => {
-          streamsByChannel[channelId] = streams;
-        });
+        // Save data to localStorage
+        localStorage.setItem(
+          cacheKey,
+          JSON.stringify({ data: flattenedStreams, timestamp: Date.now() })
+        );
 
-        setUpcomingStreams(streamsByChannel);
+        setUpcomingStreams(flattenedStreams);
+        console.log(flattenedStreams);
       } catch (error) {
         console.error("Error fetching upcoming streams:", error);
       }
@@ -43,29 +93,64 @@ const YouTubeLiveStreams = ({ apiKey, channelIds }) => {
 
     fetchUpcomingStreams();
   }, [apiKey, channelIds]);
-  console.log(upcomingStreams);
+
+  // console.log(upcomingStreams);
+
+  // Function to format UTC time into "DD MMM YYYY"
+  const formatDate = (rawScheduledTime) => {
+    const date = new Date(rawScheduledTime);
+    const options = {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    };
+
+    return new Intl.DateTimeFormat("en-US", options).format(date);
+  };
+
+  // Function to format UTC time into "h:mm A"
+  const formatTime = (rawScheduledTime) => {
+    const date = new Date(rawScheduledTime);
+    const options = {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    };
+
+    return new Intl.DateTimeFormat("en-US", options).format(date);
+  };
+
   return (
     <div>
-      <h2>Upcoming Live Streams</h2>
-      <div className="flex flex-row justify-between">
-        {Object.keys(upcomingStreams).map((channelId) => (
-          <div key={channelId}>
-            <h3>Channel: {channelId}</h3>
-            <ul>
-              {upcomingStreams[channelId].map((stream) => (
-                <li key={stream.videoId}>
-                  <strong>{stream.title}</strong>
-                  <p>Scheduled Time: {stream.scheduledTime}</p>
-                  <p>Video ID: {stream.videoId}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+      <div className="text-white">
+        <ul className="flex flex-row overflow-auto gap-2">
+          {upcomingStreams.map((stream) => (
+            <li key={stream.videoId} className="min-w-[90%] h-auto">
+              <img
+                src={stream.thumbnail}
+                alt={`Thumbnail for ${stream.title}`}
+              />
+              <h1 className="font-bold whitespace-normal text-sm">
+                {stream.title}
+              </h1>
+              <p>Date: {formatDate(stream.scheduledTime)}</p>
+              <p>Time: {formatTime(stream.scheduledTime)}</p>
+              <p>Channel: {stream.channelName}</p>
+              {stream.channelAvatar && (
+                <img
+                  src={stream.channelAvatar}
+                  alt={`Avatar for ${stream.channelName}`}
+                />
+              )}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
 };
+
+// ... (remaining code)
 
 const Home = () => {
   return (
