@@ -12,7 +12,7 @@ const YouTubeLiveStreams = ({ apiKey, channelIds }) => {
         const cachedData = localStorage.getItem(cacheKey);
         if (cachedData) {
           const { data, timestamp } = JSON.parse(cachedData);
-          // Check if the cached data is less than 1 hour old
+
           if (Date.now() - timestamp < 3600000) {
             setUpcomingStreams(data);
             return;
@@ -78,7 +78,6 @@ const YouTubeLiveStreams = ({ apiKey, channelIds }) => {
         const allStreams = await Promise.all(promises);
         const flattenedStreams = allStreams.flat();
 
-        // Save data to localStorage
         localStorage.setItem(
           cacheKey,
           JSON.stringify({ data: flattenedStreams, timestamp: Date.now() })
@@ -94,9 +93,6 @@ const YouTubeLiveStreams = ({ apiKey, channelIds }) => {
     fetchUpcomingStreams();
   }, [apiKey, channelIds]);
 
-  // console.log(upcomingStreams);
-
-  // Function to format UTC time into "DD MMM YYYY"
   const formatDate = (rawScheduledTime) => {
     const date = new Date(rawScheduledTime);
     const options = {
@@ -108,7 +104,6 @@ const YouTubeLiveStreams = ({ apiKey, channelIds }) => {
     return new Intl.DateTimeFormat("en-US", options).format(date);
   };
 
-  // Function to format UTC time into "h:mm A"
   const formatTime = (rawScheduledTime) => {
     const date = new Date(rawScheduledTime);
     const options = {
@@ -149,8 +144,6 @@ const YouTubeLiveStreams = ({ apiKey, channelIds }) => {
     </div>
   );
 };
-
-// ... (remaining code)
 
 const Home = () => {
   return (

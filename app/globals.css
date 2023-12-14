@@ -4,9 +4,6 @@
 @tailwind utilities;
 
 @layer components {
-  .container {
-    @apply mx-6;
-  }
   p,
   h1 {
     @apply font-poppins;
@@ -35,4 +32,22 @@
   .mobile-subtitle {
     @apply text-sm;
   }
+}
+#filter {
+  content: "";
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  background: linear-gradient(0deg, #000000 0%, #00000030 80%);
+}
+#redLine1,
+#redLine {
+  width: calc(100% - 110px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+#redLine1 {
+  width: calc(100% - 130px);
 }

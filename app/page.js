@@ -1,25 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import DropDown from "./components/home/DropDown";
-import UpComingStream from "./components/UpcomingStream";
-import DummyUpcoming from "./components/DummyUpcoming";
-import Home from "./components/UpcomingStream";
+import YouTubeLiveStreams from "./components/Sections/UpcomingStream";
+import Profile from "./components/Sections/Profile";
+import Talent from "./components/Sections/Talent";
 function Page() {
-  const [selectedOption, setSelectedOption] = useState({
-    value: "nowStream",
-    label: "Now Streaming",
-  });
-
-  const options = [
-    { value: "upComingStream", label: "Scheduled" },
-    { value: "nowStream", label: "Now Streaming" },
-  ];
-
-  const handleSelectChange = (value) => {
-    setSelectedOption(options.find((option) => option.value === value));
-  };
-
   return (
     <div>
       <div className="w-full xl:min-h-screen relative min-h-[100px] bg-secondary">
@@ -45,24 +30,30 @@ function Page() {
           </div>
         </div>
       </div>
-      <div className="mx-6 mt-4">
+      <div className="mx-6 lg:mx-24 mt-4">
         <div className="flex flex-row justify-between">
-          <DropDown
-            options={options}
-            selectedOption={selectedOption}
-            onSelect={handleSelectChange}
-          />
-          <button href="/" className="py-1 px-2 mobile-subtitle-b text-white">
+          <h1 className="text-white font-bold">Stream Schedule</h1>
+          <button
+            href="/"
+            className="py-1 px-3 mobile-subtitle-b transition-all duration-200 hover:bg-secondary/60 border-secondary rounded-full border-2 text-white"
+          >
             More
           </button>
         </div>
         <div>
-          {selectedOption.value === "nowStream" && (
-            <p className="mt-2 text-blue-600">Hello Selection 2</p>
-          )}
-          {selectedOption.value === "upComingStream" && <Home />}
+          <div>
+            <YouTubeLiveStreams
+              apiKey={process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}
+              channelIds={[
+                process.env.NEXT_PUBLIC_CHANNEL_ID_1,
+                process.env.NEXT_PUBLIC_CHANNEL_ID_2,
+              ]}
+            />
+          </div>
         </div>
       </div>
+      <Profile />
+      <Talent />
     </div>
   );
 }

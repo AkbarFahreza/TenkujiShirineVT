@@ -10,13 +10,13 @@ const DropDown = ({ options, selectedOption, onSelect }) => {
   };
 
   return (
-    <div className="relative inline-block text-left">
+    <div className="relative inline-block text-left caret-hidden">
       <div>
-        <span className="rounded-md shadow-sm">
+        <span className="caret-hidden rounded-md shadow-sm">
           <button
             type="button"
             onClick={() => setIsOpen(!isOpen)}
-            className="inline-flex justify-between w-[180px] py-2 mobile-subtitle-b font-medium text-white rounded-md"
+            className="caret-hidden inline-flex justify-between w-[180px] py-2 mobile-subtitle-b font-medium text-white rounded-md"
           >
             {selectedOption.label}
             <svg
@@ -37,13 +37,13 @@ const DropDown = ({ options, selectedOption, onSelect }) => {
       </div>
 
       {isOpen && (
-        <div className="origin-top-right absolute left-0 mt-2 w-fit rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+        <div className="z-50 origin-top-right absolute left-0 mt-2 w-fit rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
           <div className="py-1 w-fit">
             {options.map((option) => (
               <div
                 key={option.value}
                 onClick={() => handleOptionClick(option.value)}
-                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                className="caret-hidden block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer "
               >
                 {option.label}
               </div>
