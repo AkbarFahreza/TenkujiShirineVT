@@ -4,6 +4,7 @@ import Image from "next/image";
 import YouTubeLiveStreams from "./components/Sections/UpcomingStream";
 import Profile from "./components/Sections/Profile";
 import Talent from "./components/Sections/Talent";
+import ScheduleStream from "./components/ScheduleStream";
 function Page() {
   return (
     <div>
@@ -42,13 +43,14 @@ function Page() {
         </div>
         <div>
           <div>
-            <YouTubeLiveStreams
+            {/* <YouTubeLiveStreams
               apiKey={process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}
               channelIds={[
                 process.env.NEXT_PUBLIC_CHANNEL_ID_1,
                 process.env.NEXT_PUBLIC_CHANNEL_ID_2,
               ]}
-            />
+            /> */}
+            <ScheduleStream />
           </div>
         </div>
       </div>
